@@ -14,8 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .xenon_compute_resource import create_xenon_compute_resource
+def expandfilename(filename):
+    """ Joins sequences of filenames as directories, and expands variables and
+        user directory. """
+    if issequence(filename):
+        filename = os.path.join(*filename)
+    return os.path.expandvars(os.path.expanduser(filename))
 
-__all__ = [
-    'create_xenon_compute_resource'
-]
+
+def expandfilenames(filenames):
+    """ Runs expandfilename on each item of a given list. """
+    if not issequence(filenames):
+        filenames = [filenames]
+    return [expandfilename(fname) for fname in filenames]
