@@ -13,12 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-try:
-    from ConfigParser import RawConfigParser, NoSectionError
-except ImportError:
-    from configparser import RawConfigParser, NoSectionError
-
 from .util import expandfilenames
+import yaml
+import os
 
 class Config(object):
     """
@@ -80,24 +77,27 @@ class FileConfig(object):
     """
     Manages configuration, divided up in sections.
 
-    Configuration can be read from a python config or ini file. Those files are
+    Configuration can be read from a yaml config file. Those files are
     divided into sections, where the first entries fall in the DEFAULT section.
     Within each section, entries are stored as key-value pairs with unique
     keys.
     """
     DEFAULT_FILENAMES = [
-        "config.ini", ("..", "config.ini"), ("~", ".simcity_client")]
+        "config.yml", ("..", "config.yml"), ("~", ".simcity_client")]
 
     def __init__(self, filenames=None):
         if filenames is None:
             filenames = FileConfig.DEFAULT_FILENAMES
 
-        self.parser = RawConfigParser()
-        self.filename = self.parser.read(expandfilenames(filenames))
+        filenames = expandfilenames(filenames)
         if len(self.filename) == 0:
             raise ValueError(
-                "No valid configuration files could be found: tried " +
-                str(expandfilenames(filenames)))
+            "No valid configuration files could be found: tried " +
+            str(filenames))
+
+        for file in filenames:
+            with open(file, 'r') as ymlfile:
+                self.config = yaml.load(ymlfile)
 
     def section(self, name):
         """ Get key-values of a config section.
@@ -105,10 +105,22 @@ class FileConfig(object):
         @return: dict of key-values
         """
         try:
-            return dict_value_expandvar(dict(self.parser.items(name)))
+            return self.dict_value_expandvar(dict(self.config[name]))
         except NoSectionError:
             raise KeyError()
 
     def sections(self):
         """ The set of configured section names, including DEFAULT. """
-        return frozenset(['DEFAULT'] + self.parser.sections())
+        return frozenset(['DEFAULT'] + self.config.keys())
+
+    def dict_value_expandvar(d):
+        """ Expand all environment variables of given dict.
+        Uses os.path.expandvars internally. Only applies to str values.
+        @param d: dict to expand values of. """
+
+        for key in d:
+            try:
+                d[key] = os.path.expandvars(d[key])
+            except TypeError:
+                pass  # d[key] is not a string
+        return d
