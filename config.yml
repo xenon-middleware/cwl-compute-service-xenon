@@ -1,14 +1,37 @@
 cwl-compute-service:
-  default_host: slurm
+  default_host: docker-slurm
 
 webdav:
-# WebDAV configuration for storing files. Remove this
-# section to have attachments stored in the task database.
+# WebDAV configuration for storing files.
   url: http://webdav
   username: webdav
   password: vadbew
 
 hosts:
+  docker-slurm:
+    # Configuration of a single job host, using Xenon
+    path: ${HOME}
+    script: cwl-runner
+    # Schema defines what submission system the host uses.
+    host: slurm://slurm
+    # Method is either ssh or xenon.
+    method: xenon
+    # time in minutes: 1 day
+    max_time: 1440
+    password: javagat
+
+  local-ssh:
+    # Configuration of a single job host, using Xenon
+    path: ${HOME}
+    script: cwl-runner
+    # Schema defines what submission system the host uses.
+    host: localhost:22
+    # Method is either ssh or xenon.
+    method: ssh
+    # time in minutes: 10 minutes
+    max_time: 10
+    password:
+
   das5:
     # Configuration of a single job host, using Xenon
     path: ${HOME}
@@ -19,7 +42,20 @@ hosts:
     method: xenon
     # time in minutes: 1 day
     max_time: 1440
-    password: javagat
+    password:
+
+  lisa:
+    # Configuration of a single job host, using Xenon
+    path: ${HOME}
+    script: cwl-runner
+    # Schema defines what submission system the host uses.
+    host: torque://lisa.surfsara.nl
+    # Method is either ssh or xenon.
+    method: xenon
+    # time in minutes: 1 day
+    max_time: 1440
+    password:
+
 
 xenon:
   adaptors:
