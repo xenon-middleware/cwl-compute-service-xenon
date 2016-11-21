@@ -17,7 +17,7 @@
 from .xenon_compute_resource import XenonComputeResource 
 
 class Manager:
-    __init__(self, config):
+    def __init__(self, config):
         self._jobs = {}
 
         # Load the configuration
@@ -27,8 +27,7 @@ class Manager:
             self._config = Config()
             self._config.configurators.append(FileConfig(config))
         
-        def create_xenon_compute_resource(host_id, host_cfg):
-    
+    def create_xenon_compute_resource(host_id, host_cfg):
         self._computer = XenonComputeResource(
                     host=host_cfg['host'],
                     jobdir=host_cfg['path'],

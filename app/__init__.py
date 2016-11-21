@@ -14,8 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .xenon_compute_resource import create_xenon_compute_resource
-
 __all__ = [
-    'create_xenon_compute_resource'
 ]

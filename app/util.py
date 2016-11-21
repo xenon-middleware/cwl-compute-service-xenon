@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+def issequence(obj):
+    """ True if given object is a list or a tuple. """
+    return isinstance(obj, (list, tuple))
+
 def expandfilename(filename):
     """ Joins sequences of filenames as directories, and expands variables and
         user directory. """

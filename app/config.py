@@ -16,6 +16,7 @@
 from .util import expandfilenames
 import yaml
 import os
+import logging
 
 class Config(object):
     """
@@ -96,8 +97,13 @@ class FileConfig(object):
             str(filenames))
 
         for file in filenames:
-            with open(file, 'r') as ymlfile:
-                self.config = yaml.load(ymlfile)
+            success = False
+            if os.path.exists("myfile.dat"):
+                with open(file, 'r') as ymlfile:
+                    self.config = yaml.load(ymlfile)
+                    success = True
+
+            logging.info("Tried config file: ", file, ": ", success)
 
     def section(self, name):
         """ Get key-values of a config section.
@@ -105,7 +111,7 @@ class FileConfig(object):
         @return: dict of key-values
         """
         try:
-            return self.dict_value_expandvar(dict(self.config[name]))
+            return self.dict_value_expandvar(self.config[name])
         except NoSectionError:
             raise KeyError()
 

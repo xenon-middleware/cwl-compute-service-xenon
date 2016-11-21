@@ -21,8 +21,15 @@ import bottle
 from bottle import (post, get, run, delete, request, response, HTTPResponse,
                     static_file, hook)
 
+from .config import Config, FileConfig
+from .manager import Manager
+
+
 app = bottle.app()
-app.compute_resource = create_xenon_compute_resource()
+
+config = Config()
+config.configurators.append(FileConfig())
+app.manager = Manager(config)
 
 # TODO get from swagger.json basepath
 prefix = ''
