@@ -43,7 +43,7 @@ class Config(object):
         keyvalue : dict
             keys with values of the section
         """
-        self._sections[name] = dict_value_expandvar(keyvalue)
+        self._sections[name] = self.dict_value_expandvar(keyvalue)
 
     def section(self, name):
         """ Get the dict of key-values of config section.
@@ -73,6 +73,18 @@ class Config(object):
 
         return sections
 
+    def dict_value_expandvar(self, d):
+        """ Expand all environment variables of given dict.
+        Uses os.path.expandvars internally. Only applies to str values.
+        @param d: dict to expand values of. """
+
+        for key in d:
+            try:
+                d[key] = os.path.expandvars(d[key])
+            except TypeError:
+                pass  # d[key] is not a string
+        return d
+
 
 class FileConfig(object):
     """
@@ -91,19 +103,20 @@ class FileConfig(object):
             filenames = FileConfig.DEFAULT_FILENAMES
 
         filenames = expandfilenames(filenames)
-        if len(self.filename) == 0:
-            raise ValueError(
-            "No valid configuration files could be found: tried " +
-            str(filenames))
 
+        success = False
         for file in filenames:
-            success = False
-            if os.path.exists("myfile.dat"):
+            if os.path.exists(file):
                 with open(file, 'r') as ymlfile:
                     self.config = yaml.load(ymlfile)
                     success = True
 
             logging.info("Tried config file: ", file, ": ", success)
+
+        if not success:
+            raise ValueError(
+            "No valid configuration files could be found: tried " +
+            str(filenames))
 
     def section(self, name):
         """ Get key-values of a config section.
@@ -118,15 +131,3 @@ class FileConfig(object):
     def sections(self):
         """ The set of configured section names, including DEFAULT. """
         return frozenset(['DEFAULT'] + self.config.keys())
-
-    def dict_value_expandvar(d):
-        """ Expand all environment variables of given dict.
-        Uses os.path.expandvars internally. Only applies to str values.
-        @param d: dict to expand values of. """
-
-        for key in d:
-            try:
-                d[key] = os.path.expandvars(d[key])
-            except TypeError:
-                pass  # d[key] is not a string
-        return d

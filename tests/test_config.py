@@ -1,7 +1,8 @@
 from app.config import Config, FileConfig
+import pytest
 
 def test_empty_config():
-    cfg = app.Config()
+    cfg = Config()
     pytest.raises(KeyError, cfg.section, 'notexist')
     cfg.add_section('my', {'a': 'b'})
     assert cfg.section('my')['a'] == 'b'
